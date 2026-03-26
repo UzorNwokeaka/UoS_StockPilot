@@ -6,7 +6,19 @@ import streamlit as st
 from dotenv import load_dotenv
 from supabase import Client, create_client
 
-BASE_URL = "http://127.0.0.1:8000"
+# BASE_URL = "https://uos-stockpilot.onrender.com"
+
+BASE_URL = (
+    os.getenv("API_BASE_URL")
+    or st.secrets.get("API_BASE_URL")
+    or "http://127.0.0.1:8000"
+)
+
+SUPABASE_URL = os.getenv("SUPABASE_URL") or st.secrets.get("SUPABASE_URL")
+SUPABASE_ANON_KEY = (
+    os.getenv("SUPABASE_ANON_KEY")
+    or st.secrets.get("SUPABASE_ANON_KEY")
+)
 
 PRODUCT_OPTIONS = {
     "UoS Classic Mug": 1,
