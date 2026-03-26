@@ -503,19 +503,12 @@ elif page == "Inventory":
 
     try:
         inventory = get_inventory(PRODUCT_ID)
+        forecast = get_forecast(PRODUCT_ID)
 
-        # top1, top2, top3, top4 = st.columns(4)
-        # with top1:
-        #     render_kpi("Current Stock", inventory["current_stock"])
-        # with top2:
-        #     render_kpi("Safety Stock", inventory["safety_stock"])
-        # with top3:
-        #     render_kpi("Lead Time", inventory["lead_time_days"])
-        # with top4:
-        #     render_kpi("Auto Reorder", "On" if inventory["auto_reorder"] else "Off")
+        if not inventory:
+            st.warning("No inventory record found for the selected product yet.")
+            st.stop()
 
-        # st.markdown("### Update Inventory")
-        
         # Top KPI row
         kpi1, kpi2, kpi3, kpi4 = st.columns(4)
         with kpi1:
@@ -525,22 +518,26 @@ elif page == "Inventory":
         with kpi3:
             render_kpi("Lead Time (Days)", inventory["lead_time_days"])
         with kpi4:
-            render_kpi("Adjusted Forecast", forecast["forecast_daily_demand"])
+            render_kpi("Auto Reorder", "On" if inventory["auto_reorder"] else "Off")
 
         st.markdown("")
 
         # Forecast explanation row
-        fx1, fx2, fx3 = st.columns(3)
-        with fx1:
-            render_kpi("Base Forecast", forecast.get("base_forecast", "N/A"))
-        with fx2:
-            render_kpi("Seasonal Factor", forecast.get("seasonal_factor", "N/A"))
-        with fx3:
-            render_kpi("Adjusted Forecast", forecast["forecast_daily_demand"])
+        if forecast:
+            fx1, fx2, fx3 = st.columns(3)
+            with fx1:
+                render_kpi("Base Forecast", forecast.get("base_forecast", "N/A"))
+            with fx2:
+                render_kpi("Seasonal Factor", forecast.get("seasonal_factor", "N/A"))
+            with fx3:
+                render_kpi("Adjusted Forecast", forecast.get("forecast_daily_demand", "N/A"))
 
-        st.markdown("")
-        
-        
+            st.markdown("")
+        else:
+            st.info("No sales history is available yet for this product, so forecast details cannot be shown.")
+
+        st.markdown("### Update Inventory")
+
         with st.form(f"inventory_form_{PRODUCT_ID}"):
             form_col1, form_col2 = st.columns(2)
 
@@ -596,7 +593,7 @@ elif page == "Inventory":
 
     except Exception as exc:
         st.error(f"Error loading inventory: {exc}")
-
+        
 # ---------- Recommendations ----------
 elif page == "Recommendations":
     st.markdown('<div class="main-title">Recommendation History</div>', unsafe_allow_html=True)
